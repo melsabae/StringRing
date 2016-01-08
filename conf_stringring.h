@@ -11,13 +11,11 @@
 
 // These options control tuning parameters
 
-// total storage space is ((NUMBER_STRINGS*SIZE_STRINGS) + (sizeof(pointers) * 2) + 3
-
 // add more for more buffering capability
 #define NUMBER_STRINGS          5
 
 // this is in bytes
-#define SIZE_STRINGS            135 //136 holds the longest string the VN will spit out, plus \r\n and a \0
+#define SIZE_STRINGS            136 //136 holds the longest string the VN will spit out, plus \r\n and a \0
 
 #define STRING_READY			'$'
 

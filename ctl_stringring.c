@@ -9,9 +9,11 @@
 #include "ctl_stringring.h"
 
 // Special Conditions
-#define SR_STRING_FILLED		(sr->sr_headLen >= sr->sr_strlen) // leave 1 space for the null terminator
-#define SR_HEAD_OUT_OF_BOUNDS	(sr->writeHead >= sr->finalString + sr->sr_strlen)
-#define SR_TAIL_OUT_OF_BOUNDS	(sr->readTail >= sr->finalString + sr->sr_strlen)
+#define SR_STRING_FILLED		(sr->sr_headLen >= sr->sr_strlen)
+// this technically points to the end of the buffer, which is not out of range, but we are defining it to be so that there is space for \0
+#define SR_HEAD_OUT_OF_BOUNDS		(sr->writeHead >= (sr->finalString + sr->sr_strlen))
+// tail should never point to beyond finalString, the +1 seems to make it happier; much lower error rate
+#define SR_TAIL_OUT_OF_BOUNDS		(sr->readTail > (sr->finalString + 1))
 
 // Locations inside of the StringRing buffer
 #define SR_FIRST_STRING			(sr->buffer)

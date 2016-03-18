@@ -4,8 +4,8 @@ No other operations are required from the application. It will perform its own i
 
 The readTail pointer inside of the StringRing is the only member element needed to operate the StringRing. It points to an unread string.
 Assuming a StringRing pointer named my_sr, you pass my_sr->readTail into a function call, like it were any other K&R string.
-The functions below create, write to, check readiness, increment the tail, and destroy a StringRing. They all, except create, take a pointer to a StringRing.
-Create returns a pointer to a new StringRing in a clean state. All strings inside of the new StringRing are filled with null terminators.
+The functions write to, check readiness, increment the tail, and destroy a StringRing. They all, except create, take a pointer to a StringRing.
+Create returns a pointer to a new StringRing in a clean state. All strings inside of the new StringRing are filled with null terminators upon creation.
 
 The StringRing can be configured to overwrite the oldest data, keeping a running buffer of only the newest strings. See conf_stringring.h.
 It can also be configured to hold onto the oldest data and destroy the newest unread string by overwriting it with newer incoming data.

@@ -5,22 +5,36 @@
  *  Author: saba mas0051@uah.edu
  */ 
 
-
 #ifndef CONF_STRINGRING_H_
 #define CONF_STRINGRING_H_
 
-// These options control tuning parameters
+// Conditional compile for whether or not the StringRing should return each character that is written to it
+//#define SR_PUSH_RETURN
 
-// add more for more buffering capability
+// Determines behavior for when StringRing is operating at capacity: always keep newest strings buffered, or clobber the newest with newer incoming data?
+//#define SR_CLOBBER_OLDEST
+#define SR_CLOBBER_NEWEST
+
+// Default buffering capacity
 #define NUMBER_STRINGS          5
 
-// this is in bytes
-#define SIZE_STRINGS            136 //136 holds the longest string the VN will spit out, plus \r\n and a \0
+// Default string length
+#define SIZE_STRINGS            136
 
+// Default string parsing tag
 #define STRING_READY			'$'
 
-#define PRINT_STRINGRING
+// error conditions
+#ifdef SR_CLOBBER_OLDEST
+#ifdef SR_CLOBBER_NEWEST
+#error "Cannot have both SR_CLOBBER_OLDEST and SR_CLOBBER_NEWEST macros enabled."
+#endif
+#endif
 
-//#define PUSH_RETURN
+#ifndef SR_CLOBBER_OLDEST
+#ifndef SR_CLOBBER_NEWEST
+#error "Must have SR_CLOBBER_OLDEST xor SR_CLOBBER_NEWEST macro enabled."
+#endif
+#endif
 
 #endif /* CONF_STRINGRING_H_ */

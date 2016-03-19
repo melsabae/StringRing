@@ -12,17 +12,17 @@
 //#define SR_PUSH_RETURN
 
 // Determines behavior for when StringRing is operating at capacity: always keep newest strings buffered, or clobber the newest with newer incoming data?
-//#define SR_CLOBBER_OLDEST
-#define SR_CLOBBER_NEWEST
+#define SR_CLOBBER_OLDEST
+//#define SR_CLOBBER_NEWEST
 
 // Default buffering capacity
-#define NUMBER_STRINGS          5
+#define SR_DEFAULT_NUMBER_STRINGS			5
 
 // Default string length
-#define SIZE_STRINGS            136
+#define SR_DEFAULT_SIZE_STRINGS				136
 
 // Default string parsing tag
-#define STRING_READY			'$'
+#define SR_DEFAULT_STRING_READY				'$'
 
 // error conditions
 #ifdef SR_CLOBBER_OLDEST

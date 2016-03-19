@@ -56,7 +56,8 @@ typedef struct
 // Returns the address of a new StringRing in a clean state
 StringRing* StringRingCreate(const uint8_t NUMSTRINGS, const uint8_t LENSTRINGS, const char STRINGREADY);
 
-#ifdef PUSH_RETURN
+// SR_PUSH_RETURN is #defined in conf_stringring.h
+#ifdef SR_PUSH_RETURN
 // Write a character to a StringRing, and returns the value written. Increments head automatically.
 char StringRingWrite(StringRing * const sr, const char data);
 #else

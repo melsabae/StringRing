@@ -5,8 +5,8 @@
  *  Author: saba mas0051@uah.edu
  */ 
 
-#ifndef CTL_STRINGRING_H
-#define CTL_STRINGRING_H
+#ifndef CTL_STRINGRING_H_
+#define CTL_STRINGRING_H_
 
 #include <stdint-gcc.h>
 #include <stdbool.h>
@@ -27,7 +27,7 @@ It can also be configured to hold onto the oldest data and destroy the newest un
 This clobbering is automatic, and the StringRing can flag if it has done so. This is considered operating at or above capacity of the StringRing.
 If operating at/above capacity, consider increasing the amount of strings you want it to buffer. Defaults are included in conf_stringring.h.
 
-The parser check function by default checks for '$' in the string's first element. This default is also set in conf_stringring.h.
+The parser check function checks to see if the first character behind the readTail pointer is a '\0'. If so, it returns false; true if it was not '\0'.
 
 The StringRingWrite function is the one intended for use inside of an interrupt handler. It takes a StringRing pointer and the data to write into the StringRing.
 The Write function will assume that an incoming '\n' is the final character of the string.
@@ -46,15 +46,13 @@ typedef struct
 	// these assist 'housekeeping' activity inside the buffer
 	uint8_t		sr_headLen; // string length of string under construction
 	uint8_t		sr_strlen; // string length of each of this buffer's strings
-	char		stringReady; // a tag to see if the string is okay to read
 	char		*writeHead; // ringbuffer head, used to write incoming characters
 	char		*finalString; // points to the final string in the buffer
-
 	char		buffer[];
 } StringRing;
 
 // Returns the address of a new StringRing in a clean state
-StringRing* StringRingCreate(const uint8_t NUMSTRINGS, const uint8_t LENSTRINGS, const char STRINGREADY);
+StringRing* StringRingCreate(const uint8_t NUMSTRINGS, const uint8_t LENSTRINGS);
 
 // SR_PUSH_RETURN is #defined in conf_stringring.h
 #ifdef SR_PUSH_RETURN

@@ -35,7 +35,9 @@ static inline uint8_t StringRingMoveHeadToNextString(StringRing * const sr)
 	{
 		#ifdef SR_CLOBBER_NEWEST
 		sr->writeHead = SR_CURRENT_HEAD; // go back to the beginning of this string
-		#else
+		#endif
+		
+		#ifdef SR_CLOBBER_OLDEST
 		sr->writeHead = SR_NEXT_HEAD;
 		StringRingSeekNextReadableString(sr); // move readtail forward a string
 		#endif
@@ -83,10 +85,9 @@ static inline void StringRingIncrementTail(StringRing * const sr)
 }
 
 // Returns a pointer to a StringRing in a clean state
-// STRINGREADY is the first character of the buffered strings; our sensors use '$' by default
-StringRing* StringRingCreate(const uint8_t NUMSTRINGS, const uint8_t LENSTRINGS, const char STRINGREADY)
+StringRing* StringRingCreate(const uint8_t NUMSTRINGS, const uint8_t LENSTRINGS)
 {
-	if(NUMSTRINGS <= 1 || LENSTRINGS <= 2 || STRINGREADY == '\0')
+	if(NUMSTRINGS <= 1 || LENSTRINGS <= 2)
 	{
 		return NULL;
 	}
@@ -97,7 +98,6 @@ StringRing* StringRingCreate(const uint8_t NUMSTRINGS, const uint8_t LENSTRINGS,
 	if(sr != NULL)
 	{
 		sr->sr_strlen		= LENSTRINGS;
-		sr->stringReady		= STRINGREADY;
 		sr->finalString		= &(sr->buffer[(LENSTRINGS * (NUMSTRINGS - 1)) - 1]);
 		sr->sr_headLen		= 0;
 		sr->writeHead		= SR_FIRST_STRING;
@@ -159,10 +159,10 @@ void StringRingWrite(StringRing * const sr, const char DATA)
 }
 #endif
 
-// Checks to see if the beginning of the string contains the StringReady character
+// Checks to see if the beginning of the string is not a null terminator
 bool IsStringRingReadyForParse(StringRing * const sr)
 {
-	return (*(sr->readTail) == sr->stringReady);
+	return (*(sr->readTail) != '\0');
 }
 
 // Makes current string fail the IsStringRingReadyForParse function, like marking an email as having been read

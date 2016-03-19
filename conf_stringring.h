@@ -21,9 +21,6 @@
 // Default string length
 #define SR_DEFAULT_SIZE_STRINGS				136
 
-// Default string parsing tag
-#define SR_DEFAULT_STRING_READY				'$'
-
 // error conditions
 #ifdef SR_CLOBBER_OLDEST
 #ifdef SR_CLOBBER_NEWEST

@@ -11,58 +11,62 @@
 // Locations inside of the StringRing buffer
 #define SR_FIRST_STRING					(sr->buffer)
 #define SR_FINAL_STRING					(sr->finalString)
-#define SR_CURRENT_HEAD					(sr->writeHead - sr->sr_headLen)
-#define SR_NEXT_HEAD					(SR_CURRENT_HEAD + sr->sr_strlen)
-#define SR_NEXT_TAIL					(sr->readTail + sr->sr_strlen)
+#define SR_CURRENT_HEAD					(sr->writeHead - sr->headLen)
+#define SR_NEXT_HEAD					(SR_CURRENT_HEAD + sr->strLen)
+#define SR_NEXT_TAIL					(sr->readTail + sr->strLen)
 
 // Conditionals
-#define SR_STRING_FILLED				(sr->sr_headLen >= sr->sr_strlen)
+#define SR_STRING_FILLED				(sr->headLen >= sr->strLen)
 // this technically points to the end of the buffer, which is not out of range, but we are defining it to be so that there is space for \0
-#define SR_HEAD_OUT_OF_BOUNDS			(sr->writeHead >= (sr->finalString + sr->sr_strlen))
-// tail should never point to beyond finalString, the +1 seems to make it happier - much lower error rate
-#define SR_TAIL_OUT_OF_BOUNDS			(sr->readTail > (sr->finalString + 1))
+#define SR_HEAD_OUT_OF_BOUNDS			(sr->writeHead > (sr->finalString + sr->strLen))
+// tail should never point to beyond finalString
+#define SR_TAIL_OUT_OF_BOUNDS			(sr->readTail > sr->finalString)
 #define SR_HEAD_WILL_CLOBBER_TAIL		(SR_NEXT_HEAD == sr->readTail) || ((sr->readTail == SR_FIRST_STRING) && (SR_CURRENT_HEAD == SR_FINAL_STRING))
 #define SR_TAIL_WILL_CLOBBER_HEAD		(SR_NEXT_TAIL == SR_CURRENT_HEAD) || ((SR_CURRENT_HEAD == SR_FIRST_STRING) && (sr->readTail == SR_FINAL_STRING))
 
 // Moves the head to the next string
-// Returns a flag for: 1 if data is clobbered, 0 if not clobbered
+// Returns 0 if nothing is going to be clobbered, 1 if it clobbered something newer, or -1 if it clobbered something older
 static inline uint8_t StringRingMoveHeadToNextString(StringRing * const sr)
 {
+	static uint8_t retVal;
+	
+	retVal = 0;
+	
 	*(sr->writeHead) = '\0';
-	// note for anyone maitaining this: sr_headLen is used in the conditionals, so it should not be modified until after the checks
+	// note for anyone maintaining this: sr_headLen is used in the conditionals, so it should not be modified until after the checks
 
 	if(SR_HEAD_WILL_CLOBBER_TAIL)
 	{
 		#ifdef SR_CLOBBER_NEWEST
-		sr->writeHead = SR_CURRENT_HEAD; // go back to the beginning of this string
+		sr->writeHead = SR_CURRENT_HEAD; // go back to the beginning of the current string
+		retVal = 1
 		#endif
 		
 		#ifdef SR_CLOBBER_OLDEST
+		StringRingSeekNextReadableString(sr); // push readtail forward a string
 		sr->writeHead = SR_NEXT_HEAD;
-		StringRingSeekNextReadableString(sr); // move readtail forward a string
+		retVal = -1;
 		#endif
-		
-		sr->sr_headLen = 0;
-		return 1;
 	}
 	else
 	{
 		sr->writeHead = SR_NEXT_HEAD;
-		sr->sr_headLen = 0;
-
-		if(SR_HEAD_OUT_OF_BOUNDS)
-		{
-			sr->writeHead = SR_FIRST_STRING;
-		}
 	}
 	
-	return 0;
+	sr->headLen = 0;
+	
+	if(SR_HEAD_OUT_OF_BOUNDS)
+	{
+		sr->writeHead = SR_FIRST_STRING;
+	}
+	
+	return retVal;
 }
 
 // Moves the write head forward by 1 character; moves to next string if the string is full
 static inline uint8_t StringRingIncrementHead(StringRing * const sr)
 {
-	sr->sr_headLen++;
+	sr->headLen++;
 	sr->writeHead++;
 
 	if(SR_STRING_FILLED)
@@ -97,9 +101,9 @@ StringRing* StringRingCreate(const uint8_t NUMSTRINGS, const uint8_t LENSTRINGS)
 
 	if(sr != NULL)
 	{
-		sr->sr_strlen		= LENSTRINGS;
+		sr->strLen			= LENSTRINGS;
 		sr->finalString		= &(sr->buffer[(LENSTRINGS * (NUMSTRINGS - 1)) - 1]);
-		sr->sr_headLen		= 0;
+		sr->headLen			= 0;
 		sr->writeHead		= SR_FIRST_STRING;
 		sr->readTail		= SR_FINAL_STRING;
 	}
@@ -171,6 +175,8 @@ bool StringRingSeekNextReadableString(StringRing * const sr)
 {
 	*(sr->readTail) = '\0';
 	
+	// explicitly deny this; where you can start reading a string that hasn't been finalized
+	// if this happens enough you can probably lower the buffer size
 	if(SR_TAIL_WILL_CLOBBER_HEAD)
 	{
 		return false;

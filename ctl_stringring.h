@@ -20,7 +20,7 @@ No other operations are required from the application. It will perform its own i
 The readTail pointer inside of the StringRing is the only member element needed to operate the StringRing. It points to an unread string.
 Assuming a StringRing pointer named my_sr, you pass my_sr->readTail into a function call, like it were any other K&R string.
 The functions below create, write to, check readiness, increment the tail, and destroy a StringRing. They all, except create, take a pointer to a StringRing.
-Create returns a pointer to a new StringRing in a clean state. All strings inside of the new StringRing are filled with null terminators.
+Create returns a pointer to a new StringRing in a clean state; all strings inside of the new StringRing are filled with null terminators.
 
 The StringRing can be configured to overwrite the oldest data, keeping a running buffer of only the newest strings. See conf_stringring.h.
 It can also be configured to hold onto the oldest data and destroy the newest unread string by overwriting it with newer incoming data.
@@ -36,6 +36,8 @@ Write is a wrapper for the typical push operation. Write implement the additiona
 
 Ring buffers usually implement a pop function. One is not provided with the StringRing.
 In the event a pop were to be used, it would be possible for the StringRing to overwrite the data in the tail, at the same time as being read from.
+
+Like ring buffers, the StringRing has an effective (n - 1) storage capacity.
 */
 
 typedef struct
@@ -44,8 +46,8 @@ typedef struct
 	char		*readTail; // points to last unprocessed string
 	
 	// these assist 'housekeeping' activity inside the buffer
-	uint8_t		sr_headLen; // string length of string under construction
-	uint8_t		sr_strlen; // string length of each of this buffer's strings
+	uint8_t		headLen; // string length of string under construction
+	uint8_t		strLen; // string length of each of this buffer's strings
 	char		*writeHead; // ringbuffer head, used to write incoming characters
 	char		*finalString; // points to the final string in the buffer
 	char		buffer[];

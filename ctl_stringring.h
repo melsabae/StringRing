@@ -46,6 +46,7 @@ typedef struct
 	char		*readTail; // points to last unprocessed string
 	
 	// these assist 'housekeeping' activity inside the buffer
+	bool		clobberOld; // defines how the stringring operates at capacity
 	uint8_t		headLen; // string length of string under construction
 	uint8_t		strLen; // string length of each of this buffer's strings
 	char		*writeHead; // ringbuffer head, used to write incoming characters
@@ -54,7 +55,7 @@ typedef struct
 } StringRing;
 
 // Returns the address of a new StringRing in a clean state
-StringRing* StringRingCreate(const uint8_t NUMSTRINGS, const uint8_t LENSTRINGS);
+StringRing* StringRingCreate(const uint8_t NUMSTRINGS, const uint8_t LENSTRINGS, const bool CLOBBEROLD);
 
 // SR_PUSH_RETURN is #defined in conf_stringring.h
 #ifdef SR_PUSH_RETURN

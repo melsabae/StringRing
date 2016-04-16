@@ -14,7 +14,6 @@
 #define SR_CURRENT_HEAD					(sr->writeHead - sr->headLen)
 #define SR_NEXT_HEAD					(SR_CURRENT_HEAD + sr->strLen)
 #define SR_NEXT_TAIL					(sr->readTail + sr->strLen)
-#define test_macro
 
 // Conditionals
 #define SR_HEAD_WILL_CLOBBER_TAIL		((SR_NEXT_HEAD == sr->readTail) || ((sr->readTail == SR_FIRST_STRING) && (SR_CURRENT_HEAD == SR_FINAL_STRING))) // considered the "full" state
